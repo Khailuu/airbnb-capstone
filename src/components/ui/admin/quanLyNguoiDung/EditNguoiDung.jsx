@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Form,
-  Input,
-  Radio,
-  DatePicker
-} from "antd";
+import { Button, Form, Input, Radio, DatePicker } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { useFormik } from "formik";
 import { quanLyUserServices } from "../../../../services/QuanLyUser";
-import moment from 'moment';
+import dayjs from 'dayjs'; // Import dayjs
+import advancedFormat from 'dayjs/plugin/advancedFormat'; // Import plugin for custom format
 import { useEditNguoiDung } from "../../../../hooks/api/quanLyNguoiDungApi/useEditNguoiDung";
 import { PATH } from "../../../../constant";
+import 'dayjs/locale/vi'; // Import Vietnamese locale for dayjs
+import localeData from 'dayjs/plugin/localeData'; // Import plugin for locale data
+
+dayjs.extend(advancedFormat); // Extend dayjs with advanced formatting
+dayjs.locale('vi'); // Set default locale to Vietnamese
+dayjs.extend(localeData);
 
 export const EditNguoiDung = () => {
   const { id } = useParams();
@@ -39,10 +40,10 @@ export const EditNguoiDung = () => {
     enableReinitialize: true,
     initialValues: {
       id: nguoiDung?.id || 0,
-       name: nguoiDung?.name || '',
+      name: nguoiDung?.name || '',
       email: nguoiDung?.email || '',
       phone: nguoiDung?.phone || '',
-      birthday: nguoiDung?.birthday || '',
+      birthday: nguoiDung?.birthday ,
       gender: nguoiDung?.gender || true,
       role: nguoiDung?.role || ''
     },
@@ -54,6 +55,10 @@ export const EditNguoiDung = () => {
       });
     }
   });
+
+  const handleChangeDatePicker = (date, dateString) => {
+    formik.setFieldValue("birthday", dateString);
+  };
 
   return (
     <Form
@@ -87,10 +92,9 @@ export const EditNguoiDung = () => {
       </Form.Item>
       <Form.Item label="Birthday">
         <DatePicker 
-          name="birthday" 
-          value={moment(formik.values.birthday, 'DD-MM-YYYY')} 
-          format='DD-MM-YYYY'
-          onChange={(date) => formik.setFieldValue('birthday', date)} 
+          value={formik.values.birthday ? dayjs(formik.values.birthday, 'DD/MM/YYYY') : null} 
+          format='DD/MM/YYYY'
+          onChange={handleChangeDatePicker} 
         />
       </Form.Item>
       <Form.Item label="Gender">
